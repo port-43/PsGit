@@ -133,8 +133,6 @@ class PsGit {
             $Response = [LibGit2Sharp.Repository]::Clone($RepoUrl.AbsoluteUri, $Destination.FullName, $CloneOptions)
         }
 
-
-
         $Response = [LibGit2Sharp.Repository]::Clone($RepoUrl.AbsoluteUri, $this.GenerateDestination($RepoUrl, $pwd.Path).FullName)
 
         return $Response
@@ -143,7 +141,7 @@ class PsGit {
     # clone repo to working directory
     static [string] CloneRepo([uri] $RepoUrl) {
         $Method      = 'CloneRepo([uri] $RepoUrl)'
-        $Destination = [System.IO.DirectoryInfo] ($pwd.Path + '\' + [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri))
+        $Destination = [System.IO.DirectoryInfo] ([System.IO.Path]::Join($pwd.path, [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri)))
 
         $script:PsGitLog.Log('Info', "Cloning repo to current working directory", $Method)
         $Response = [LibGit2Sharp.Repository]::Clone($RepoUrl.AbsoluteUri, $Destination.FullName)
@@ -154,7 +152,7 @@ class PsGit {
     # clone repo to a specified directory
     static [string] CloneRepo([uri] $RepoUrl, [System.IO.DirectoryInfo] $Destination) {
         $Method           = 'CloneRepo([uri] $RepoUrl, [System.IO.DirectoryInfo] $Destination)'
-        $FinalDestination = [System.IO.DirectoryInfo] ($Destination.FullName + '\' + [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri))
+        $FinalDestination = [System.IO.DirectoryInfo] ([System.IO.Path]::Join($Destination.FullName, [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri)))
 
         $script:PsGitLog.Log('Info', "Cloning repo to destination $($FinalDestination.FullName)", $Method)
         $Response = [LibGit2Sharp.Repository]::Clone($RepoUrl.AbsoluteUri, $FinalDestination.FullName)
@@ -185,7 +183,7 @@ class PsGit {
 
         # preserve project name
         if ($Options.PreserveRepositoryName) {
-            $Destination = [System.IO.DirectoryInfo] ($pwd.Path + '\' + [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri))
+            $Destination = [System.IO.DirectoryInfo] ([System.IO.Path]::Join($pwd.path, [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri)))
         } else {
             $Destination = [System.IO.DirectoryInfo] $pwd.Path
         }
@@ -249,7 +247,8 @@ class PsGit {
 
         # preserve project name
         if ($Options.PreserveRepositoryName) {
-            $Destination = [System.IO.DirectoryInfo] ($Destination.FullName + '\' + [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri))
+
+            $Destination = [System.IO.DirectoryInfo] ([System.IO.Path]::Join($Destination.FullName, [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri)))
         }
 
         # clone specific branch
@@ -402,7 +401,8 @@ class PsGit {
 
     hidden [System.IO.DirectoryInfo] GenerateDestination([uri] $RepoUrl, [System.IO.DirectoryInfo] $ProvidedDestination, [bool] $PreserveRepositoryName) {
         if ($PreserveRepositoryName) {
-            $Destination = [System.IO.DirectoryInfo] ($ProvidedDestination.FullName + '\' + [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri))
+
+            $Destination = [System.IO.DirectoryInfo] ([System.IO.Path]::Join($ProvidedDestination.FullName, [System.IO.Path]::GetFileNameWithoutExtension($RepoUrl.AbsoluteUri)))
         } else {
             $Destination = $ProvidedDestination
         }
